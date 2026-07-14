@@ -103,7 +103,7 @@
       <p>This page is ready to receive a setup payload from the iPad QR code.</p>
       <div class="pill" id="deviceIdPill">Device: waiting…</div>
       <div class="status" id="statusBox">Opening your setup…</div>
-      <div class="infoBox" id="infoBox">URL query: <span id="queryString">none</span></div>
+      <div class="infoBox" id="infoBox">URL query: <span id="queryString">none</span><br />Full URL: <span id="fullUrl">none</span></div>
       <div class="payloadBox hidden" id="payloadBox">No payload received yet.</div>
       <div class="payloadActions hidden" id="payloadActions">
         <div class="qrHolder" id="deepLinkQR"></div>
@@ -125,6 +125,7 @@
       const payloadActions = document.getElementById('payloadActions');
       const deepLinkButton = document.getElementById('deepLinkButton');
       const queryString = document.getElementById('queryString');
+      const fullUrl = document.getElementById('fullUrl');
 
       const findPayloadInText = (text) => {
         if (!text) return null;
@@ -141,6 +142,7 @@
       }
 
       queryString.textContent = window.location.search || (hash ? `hash: ${hash}` : 'none');
+      fullUrl.textContent = href;
 
       if (payload) {
         let parsedPayload;
