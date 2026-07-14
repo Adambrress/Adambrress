@@ -39,6 +39,40 @@
         background: rgba(255,255,255,0.08);
         font-size: 0.95rem;
       }
+      .payloadBox {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(0,0,0,0.24);
+        font-size: 0.85rem;
+        line-height: 1.35;
+        word-break: break-all;
+        white-space: pre-wrap;
+      }
+      .payloadActions {
+        margin-top: 18px;
+        display: grid;
+        gap: 12px;
+      }
+      .actionLink {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 14px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .qrHolder {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+        padding: 12px;
+        background: white;
+        border-radius: 20px;
+      }
       .hidden { display: none; }
     </style>
   </head>
@@ -48,8 +82,14 @@
       <p>This page is ready to receive a setup payload from the iPad QR code.</p>
       <div class="pill" id="deviceIdPill">Device: waiting…</div>
       <div class="status" id="statusBox">Opening your setup…</div>
+      <div class="payloadBox hidden" id="payloadBox">No payload received yet.</div>
+      <div class="payloadActions hidden" id="payloadActions">
+        <div class="qrHolder" id="deepLinkQR"></div>
+        <a id="deepLinkButton" class="actionLink" href="#">Open setup in iPad app</a>
+      </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
       const params = new URLSearchParams(window.location.search);
       const payload = params.get('payload');
@@ -63,9 +103,36 @@
       }
 
       if (payload) {
-        statusBox.textContent = 'Setup payload received. The device can use this page as the handoff point.';
+        let parsedPayload;
+        try {
+          parsedPayload = JSON.parse(decodeURIComponent(payload));
+        } catch (error) {
+          statusBox.textContent = 'Invalid payload format.';
+          payloadBox.textContent = payload;
+          payloadBox.classList.remove('hidden');
+          return;
+        }
+
+        statusBox.textContent = 'Setup payload received. Scan the iPad QR or open the link below.';
+        payloadBox.textContent = `Selected teams:\n${parsedPayload.teamIds.join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
+        payloadBox.classList.remove('hidden');
+
+        const deepLink = `shabbosmode://setup?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
+        new QRCode(document.getElementById('deepLinkQR'), {
+          text: deepLink,
+          width: 180,
+          height: 180,
+          colorDark: '#111827',
+          colorLight: '#f8fafc',
+          correctLevel: QRCode.CorrectLevel.H,
+        });
+        deepLinkButton.href = deepLink;
+        deepLinkButton.textContent = 'Open setup in iPad app';
+        document.getElementById('payloadActions').classList.remove('hidden');
       } else {
         statusBox.textContent = 'No setup payload was found in the link.';
+        payloadBox.textContent = 'No payload received yet.';
+        payloadBox.classList.remove('hidden');
       }
     </script>
   </body>
