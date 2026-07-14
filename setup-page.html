@@ -108,20 +108,25 @@
       if (payload) {
         let parsedPayload;
         try {
-          parsedPayload = JSON.parse(decodeURIComponent(payload));
+          const decodedPayload = decodeURIComponent(payload);
+          parsedPayload = JSON.parse(decodedPayload);
         } catch (error) {
-          statusBox.textContent = 'Invalid payload format.';
-          payloadBox.textContent = payload;
-          payloadBox.classList.remove('hidden');
-          return;
+          try {
+            parsedPayload = JSON.parse(payload);
+          } catch (innerError) {
+            statusBox.textContent = 'Invalid payload format.';
+            payloadBox.textContent = payload;
+            payloadBox.classList.remove('hidden');
+            return;
+          }
         }
 
         statusBox.textContent = 'Setup payload received. Scan the iPad QR or open the link below.';
         devicePill.textContent = `Device: ${parsedPayload.deviceId || 'unknown'}`;
-        payloadBox.textContent = `Selected teams:\n${parsedPayload.teamIds.join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
+        payloadBox.textContent = `Selected teams:\n${(parsedPayload.teamIds || []).join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
         payloadBox.classList.remove('hidden');
 
-        const handoffUrl = `https://adambrress.github.io/Adambrress/setup-page.html?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
+        const handoffUrl = `shabbosmode://setup?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
         new QRCode(document.getElementById('deepLinkQR'), {
           text: handoffUrl,
           width: 180,
