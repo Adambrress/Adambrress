@@ -49,6 +49,16 @@
         word-break: break-all;
         white-space: pre-wrap;
       }
+      .infoBox {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.08);
+        color: #cbd5e1;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        word-break: break-word;
+      }
       .payloadActions {
         margin-top: 18px;
         display: grid;
@@ -93,6 +103,7 @@
       <p>This page is ready to receive a setup payload from the iPad QR code.</p>
       <div class="pill" id="deviceIdPill">Device: waiting…</div>
       <div class="status" id="statusBox">Opening your setup…</div>
+      <div class="infoBox" id="infoBox">URL query: <span id="queryString">none</span></div>
       <div class="payloadBox hidden" id="payloadBox">No payload received yet.</div>
       <div class="payloadActions hidden" id="payloadActions">
         <div class="qrHolder" id="deepLinkQR"></div>
@@ -111,10 +122,13 @@
       const payloadBox = document.getElementById('payloadBox');
       const payloadActions = document.getElementById('payloadActions');
       const deepLinkButton = document.getElementById('deepLinkButton');
+      const queryString = document.getElementById('queryString');
 
       if (deviceId) {
         devicePill.textContent = `Device: ${deviceId}`;
       }
+
+      queryString.textContent = window.location.search || 'none';
 
       if (payload) {
         let parsedPayload;
