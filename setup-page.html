@@ -97,6 +97,9 @@
 
       const devicePill = document.getElementById('deviceIdPill');
       const statusBox = document.getElementById('statusBox');
+      const payloadBox = document.getElementById('payloadBox');
+      const payloadActions = document.getElementById('payloadActions');
+      const deepLinkButton = document.getElementById('deepLinkButton');
 
       if (deviceId) {
         devicePill.textContent = `Device: ${deviceId}`;
@@ -114,6 +117,7 @@
         }
 
         statusBox.textContent = 'Setup payload received. Scan the iPad QR or open the link below.';
+        devicePill.textContent = `Device: ${parsedPayload.deviceId || 'unknown'}`;
         payloadBox.textContent = `Selected teams:\n${parsedPayload.teamIds.join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
         payloadBox.classList.remove('hidden');
 
