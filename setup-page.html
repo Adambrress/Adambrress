@@ -113,7 +113,7 @@
           return;
         }
 
-        statusBox.textContent = 'Setup payload received. Scan the iPad QR or open the link below.';
+        statusBox.textContent = 'Setup payload received. Redirecting to the iPad app…';
         payloadBox.textContent = `Selected teams:\n${parsedPayload.teamIds.join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
         payloadBox.classList.remove('hidden');
 
@@ -129,6 +129,10 @@
         deepLinkButton.href = deepLink;
         deepLinkButton.textContent = 'Open setup in iPad app';
         document.getElementById('payloadActions').classList.remove('hidden');
+
+        setTimeout(() => {
+          window.location.href = deepLink;
+        }, 800);
       } else {
         statusBox.textContent = 'No setup payload was found in the link.';
         payloadBox.textContent = 'No payload received yet.';
