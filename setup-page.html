@@ -113,9 +113,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-      const params = new URLSearchParams(window.location.search);
-      const payload = params.get('payload');
-      const deviceId = params.get('deviceId');
+      const searchParams = new URLSearchParams(window.location.search);
+      let payload = searchParams.get('payload');
+      const deviceId = searchParams.get('deviceId');
+      const href = window.location.href;
+      const hash = window.location.hash;
 
       const devicePill = document.getElementById('deviceIdPill');
       const statusBox = document.getElementById('statusBox');
@@ -124,11 +126,21 @@
       const deepLinkButton = document.getElementById('deepLinkButton');
       const queryString = document.getElementById('queryString');
 
+      const findPayloadInText = (text) => {
+        if (!text) return null;
+        const matches = text.match(/(?:\?|#|&|\/)payload=([^&]+)/);
+        return matches ? matches[1] : null;
+      };
+
+      if (!payload) {
+        payload = findPayloadInText(hash) || findPayloadInText(href);
+      }
+
       if (deviceId) {
         devicePill.textContent = `Device: ${deviceId}`;
       }
 
-      queryString.textContent = window.location.search || 'none';
+      queryString.textContent = window.location.search || (hash ? `hash: ${hash}` : 'none');
 
       if (payload) {
         let parsedPayload;
