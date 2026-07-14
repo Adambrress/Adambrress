@@ -113,26 +113,22 @@
           return;
         }
 
-        statusBox.textContent = 'Setup payload received. Redirecting to the iPad app…';
+        statusBox.textContent = 'Setup payload received. Scan the iPad QR or open the link below.';
         payloadBox.textContent = `Selected teams:\n${parsedPayload.teamIds.join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
         payloadBox.classList.remove('hidden');
 
-        const deepLink = `shabbosmode://setup?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
+        const handoffUrl = `https://adambrress.github.io/Adambrress/setup-page.html?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
         new QRCode(document.getElementById('deepLinkQR'), {
-          text: deepLink,
+          text: handoffUrl,
           width: 180,
           height: 180,
           colorDark: '#111827',
           colorLight: '#f8fafc',
           correctLevel: QRCode.CorrectLevel.H,
         });
-        deepLinkButton.href = deepLink;
-        deepLinkButton.textContent = 'Open setup in iPad app';
+        deepLinkButton.href = handoffUrl;
+        deepLinkButton.textContent = 'Open setup on iPad browser';
         document.getElementById('payloadActions').classList.remove('hidden');
-
-        setTimeout(() => {
-          window.location.href = deepLink;
-        }, 800);
       } else {
         statusBox.textContent = 'No setup payload was found in the link.';
         payloadBox.textContent = 'No payload received yet.';
