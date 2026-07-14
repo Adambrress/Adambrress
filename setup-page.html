@@ -12,13 +12,15 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         margin: 0;
         min-height: 100vh;
-        display: grid;
-        place-items: center;
         background: linear-gradient(135deg, #0f172a, #1e293b);
         color: white;
+        padding: 12px;
+      }
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
       }
       .card {
-        width: min(92vw, 460px);
         padding: 24px;
         border-radius: 20px;
         background: rgba(255,255,255,0.12);
@@ -26,7 +28,7 @@
         box-shadow: 0 12px 40px rgba(0,0,0,0.25);
       }
       h1 { font-size: 1.4rem; margin: 0 0 8px; }
-      p { line-height: 1.5; color: #e2e8f0; }
+      p { line-height: 1.5; color: #e2e8f0; margin: 0 0 16px; }
       .pill {
         display: inline-block;
         margin-top: 8px;
@@ -42,149 +44,251 @@
         background: rgba(255,255,255,0.08);
         font-size: 0.95rem;
       }
-      .payloadBox {
-        margin-top: 12px;
-        padding: 12px;
-        border-radius: 12px;
-        background: rgba(0,0,0,0.24);
-        font-size: 0.85rem;
-        line-height: 1.35;
-        word-break: break-all;
-        white-space: pre-wrap;
+      .teamsList {
+        margin-top: 16px;
+        max-height: 400px;
+        overflow-y: auto;
       }
-      .infoBox {
-        margin-top: 12px;
+      .teamItem {
+        display: flex;
+        align-items: center;
         padding: 12px;
+        margin-bottom: 8px;
         border-radius: 12px;
         background: rgba(255,255,255,0.08);
-        color: #cbd5e1;
-        font-size: 0.82rem;
-        line-height: 1.4;
-        word-break: break-word;
+        cursor: pointer;
+        user-select: none;
       }
-      .payloadActions {
-        margin-top: 18px;
-        display: grid;
-        gap: 12px;
+      .teamItem:hover {
+        background: rgba(255,255,255,0.12);
       }
-      .actionLink {
-        display: inline-flex;
+      .teamItem.selected {
+        background: rgba(37, 99, 235, 0.3);
+      }
+      .teamCheckbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #94a3b8;
+        border-radius: 6px;
+        margin-right: 12px;
+        display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 12px;
+      }
+      .teamItem.selected .teamCheckbox {
+        background: #2563eb;
+        border-color: #2563eb;
+      }
+      .teamName {
+        flex: 1;
+        font-size: 0.95rem;
+      }
+      .buttonGroup {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+      button {
         padding: 12px 16px;
-        border-radius: 14px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
+      .btnPrimary {
         background: #2563eb;
         color: white;
-        text-decoration: none;
-        font-weight: 600;
       }
-      .secondaryLink {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 16px;
-        border-radius: 14px;
+      .btnPrimary:hover {
+        background: #1d4ed8;
+      }
+      .btnSecondary {
         background: rgba(255,255,255,0.14);
         color: #f8fafc;
-        text-decoration: none;
-        font-weight: 600;
+      }
+      .btnSecondary:hover {
+        background: rgba(255,255,255,0.2);
+      }
+      .qrSection {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.06);
+        text-align: center;
       }
       .qrHolder {
-        width: 180px;
-        height: 180px;
-        margin: 0 auto;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 12px;
         padding: 12px;
         background: white;
-        border-radius: 20px;
+        border-radius: 12px;
       }
       .hidden { display: none; }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>Shabbos Mode Setup</h1>
-      <p>This page is ready to receive a setup payload from the iPad QR code.</p>
-      <div class="pill" id="deviceIdPill">Device: waiting…</div>
-      <div class="status" id="statusBox">Opening your setup…</div>
-      <div class="infoBox" id="infoBox">URL query: <span id="queryString">none</span><br />Full URL: <span id="fullUrl">none</span></div>
-      <div class="payloadBox hidden" id="payloadBox">No payload received yet.</div>
-      <div class="payloadActions hidden" id="payloadActions">
-        <div class="qrHolder" id="deepLinkQR"></div>
-        <a id="deepLinkButton" class="actionLink" href="#">Open setup on iPad browser</a>
+    <div class="container">
+      <div class="card">
+        <h1>Shabbos Mode Setup</h1>
+        <p id="mainText">Loading your current settings from iPad...</p>
+        <div class="pill" id="deviceIdPill">Device: waiting…</div>
+        <div class="status" id="statusBox">Preparing...</div>
+        
+        <div id="editMode" class="hidden">
+          <p style="margin-top: 16px; font-size: 0.9rem; color: #cbd5e1;">Tap teams to toggle on/off, then tap "Generate QR" to send changes back to iPad.</p>
+          <div class="teamsList" id="teamsList"></div>
+          <div class="buttonGroup">
+            <button class="btnPrimary" id="generateBtn">Generate QR</button>
+            <button class="btnSecondary" id="resetBtn">Reset</button>
+          </div>
+        </div>
+
+        <div id="qrMode" class="hidden">
+          <div class="qrSection">
+            <p style="margin-top: 0; margin-bottom: 12px; font-size: 0.9rem;">Scan this QR code with your iPad to update settings:</p>
+            <div class="qrHolder" id="deepLinkQR"></div>
+            <p style="margin: 0; font-size: 0.85rem; color: #cbd5e1;">Teams: <span id="qrTeamCount">0</span></p>
+          </div>
+          <button class="btnSecondary" id="backBtn" style="width: 100%;">Back to Edit</button>
+        </div>
       </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-      const searchParams = new URLSearchParams(window.location.search);
-      let payload = searchParams.get('payload');
-      const deviceId = searchParams.get('deviceId');
-      const href = window.location.href;
-      const hash = window.location.hash;
+      const AVAILABLE_TEAMS = [
+        { id: 'weather-local', name: 'Weather - Local', league: 'WEATHER' },
+        { id: 'mlb-NYY', name: 'MLB - Yankees', league: 'MLB' },
+        { id: 'mlb-CHW', name: 'MLB - White Sox', league: 'MLB' },
+        { id: 'mlb-MIA', name: 'MLB - Marlins', league: 'MLB' },
+        { id: 'mlb-NYM', name: 'MLB - Mets', league: 'MLB' },
+        { id: 'mlb-TB', name: 'MLB - Rays', league: 'MLB' },
+        { id: 'wnba-IND', name: 'WNBA - Fever', league: 'WNBA' },
+        { id: 'wnba-NY', name: 'WNBA - Liberty', league: 'WNBA' },
+        { id: 'scoreboard-mlb', name: 'Scoreboard - MLB', league: 'SCOREBOARDS' },
+        { id: 'scoreboard-wnba', name: 'Scoreboard - WNBA', league: 'SCOREBOARDS' },
+        { id: 'scoreboard-fifa', name: 'Scoreboard - FIFA', league: 'SCOREBOARDS' },
+        { id: 'news-toi', name: 'News - Times of Israel', league: 'NEWS' },
+        { id: 'news-jpost', name: 'News - Jerusalem Post', league: 'NEWS' },
+        { id: 'news-espn', name: 'News - ESPN', league: 'NEWS' },
+        { id: 'news-nyp', name: 'News - NY Post', league: 'NEWS' },
+        { id: 'news-yahoo', name: 'News - Yahoo', league: 'NEWS' },
+        { id: 'news-fox', name: 'News - Fox News', league: 'NEWS' },
+      ];
 
-      const devicePill = document.getElementById('deviceIdPill');
+      const params = new URLSearchParams(window.location.search);
+      const incomingPayload = params.get('payload');
+      const deviceId = params.get('deviceId');
+
+      let currentSelection = [];
+      let currentDeviceId = deviceId || 'device-unknown';
+
+      const mainText = document.getElementById('mainText');
       const statusBox = document.getElementById('statusBox');
-      const payloadBox = document.getElementById('payloadBox');
-      const payloadActions = document.getElementById('payloadActions');
-      const deepLinkButton = document.getElementById('deepLinkButton');
-      const queryString = document.getElementById('queryString');
-      const fullUrl = document.getElementById('fullUrl');
+      const deviceIdPill = document.getElementById('deviceIdPill');
+      const editMode = document.getElementById('editMode');
+      const qrMode = document.getElementById('qrMode');
+      const teamsList = document.getElementById('teamsList');
+      const generateBtn = document.getElementById('generateBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const backBtn = document.getElementById('backBtn');
+      const deepLinkQR = document.getElementById('deepLinkQR');
+      const qrTeamCount = document.getElementById('qrTeamCount');
 
-      const findPayloadInText = (text) => {
-        if (!text) return null;
-        const matches = text.match(/(?:\?|#|&|\/)payload=([^&]+)/);
-        return matches ? matches[1] : null;
-      };
-
-      if (!payload) {
-        payload = findPayloadInText(hash) || findPayloadInText(href);
-      }
-
-      if (deviceId) {
-        devicePill.textContent = `Device: ${deviceId}`;
-      }
-
-      queryString.textContent = window.location.search || (hash ? `hash: ${hash}` : 'none');
-      fullUrl.textContent = href;
-
-      if (payload) {
-        let parsedPayload;
-        try {
-          const decodedPayload = decodeURIComponent(payload);
-          parsedPayload = JSON.parse(decodedPayload);
-        } catch (error) {
-          try {
-            parsedPayload = JSON.parse(payload);
-          } catch (innerError) {
-            statusBox.textContent = 'Invalid payload format.';
-            payloadBox.textContent = payload;
-            payloadBox.classList.remove('hidden');
-            return;
-          }
+      function initializeFromPayload() {
+        if (!incomingPayload) {
+          mainText.textContent = 'No settings received. Starting with defaults.';
+          currentSelection = ['weather-local', 'mlb-NYY', 'news-toi', 'news-espn'];
+          showEditMode();
+          return;
         }
 
-        statusBox.textContent = 'Setup payload received. Scan the iPad QR or open the link below.';
-        devicePill.textContent = `Device: ${parsedPayload.deviceId || 'unknown'}`;
-        payloadBox.textContent = `Selected teams:\n${(parsedPayload.teamIds || []).join(', ')}\n\nDevice ID:\n${parsedPayload.deviceId || 'unknown'}`;
-        payloadBox.classList.remove('hidden');
+        try {
+          const decoded = decodeURIComponent(incomingPayload);
+          const data = JSON.parse(decoded);
+          currentSelection = data.teamIds || [];
+          if (data.deviceId) currentDeviceId = data.deviceId;
+          mainText.textContent = 'Ready to modify settings.';
+          showEditMode();
+        } catch (error) {
+          mainText.textContent = 'Error loading settings.';
+          statusBox.textContent = error.message;
+          currentSelection = ['weather-local', 'mlb-NYY'];
+          showEditMode();
+        }
+      }
 
-        const handoffUrl = `https://adambrress.github.io/Adambrress/setup-page.html?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
-        new QRCode(document.getElementById('deepLinkQR'), {
+      function renderTeamsList() {
+        teamsList.innerHTML = '';
+        AVAILABLE_TEAMS.forEach(team => {
+          const item = document.createElement('div');
+          item.className = 'teamItem';
+          if (currentSelection.includes(team.id)) {
+            item.classList.add('selected');
+          }
+          item.innerHTML = `
+            <div class="teamCheckbox">${currentSelection.includes(team.id) ? '✓' : ''}</div>
+            <div class="teamName">${team.name}</div>
+          `;
+          item.addEventListener('click', () => toggleTeam(team.id));
+          teamsList.appendChild(item);
+        });
+      }
+
+      function toggleTeam(teamId) {
+        if (currentSelection.includes(teamId)) {
+          currentSelection = currentSelection.filter(id => id !== teamId);
+        } else {
+          currentSelection.push(teamId);
+        }
+        renderTeamsList();
+      }
+
+      function showEditMode() {
+        editMode.classList.remove('hidden');
+        qrMode.classList.add('hidden');
+        deviceIdPill.textContent = `Device: ${currentDeviceId}`;
+        statusBox.textContent = `${currentSelection.length} teams selected`;
+        renderTeamsList();
+      }
+
+      function generateQRCode() {
+        const payload = {
+          type: 'settings',
+          teamIds: currentSelection,
+          deviceId: currentDeviceId,
+        };
+        const handoffUrl = `https://adambrress.github.io/Adambrress/setup-page.html?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+        
+        deepLinkQR.innerHTML = '';
+        new QRCode(deepLinkQR, {
           text: handoffUrl,
-          width: 180,
-          height: 180,
+          width: 200,
+          height: 200,
           colorDark: '#111827',
           colorLight: '#f8fafc',
           correctLevel: QRCode.CorrectLevel.H,
         });
-        deepLinkButton.href = handoffUrl;
-        deepLinkButton.textContent = 'Open setup on iPad browser';
-        document.getElementById('payloadActions').classList.remove('hidden');
-      } else {
-        statusBox.textContent = 'No setup payload was found in the link.';
-        payloadBox.textContent = 'No payload received yet.';
-        payloadBox.classList.remove('hidden');
+        
+        qrTeamCount.textContent = currentSelection.length;
+        editMode.classList.add('hidden');
+        qrMode.classList.remove('hidden');
+        statusBox.textContent = `QR ready for ${currentSelection.length} teams`;
       }
+
+      function resetToOriginal() {
+        initializeFromPayload();
+      }
+
+      generateBtn.addEventListener('click', generateQRCode);
+      resetBtn.addEventListener('click', resetToOriginal);
+      backBtn.addEventListener('click', showEditMode);
+
+      initializeFromPayload();
     </script>
   </body>
 </html>
