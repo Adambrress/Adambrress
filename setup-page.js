@@ -7,13 +7,13 @@ const ALL_AVAILABLE_ITEMS = [
 // --- Firebase Configuration ---
 // IMPORTANT: Use the same credentials as in your App.js
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCXoDVmryclNRrkcbo2_quEtTPXMhHoG4s",
+  authDomain: "shabbosmode-83043.firebaseapp.com",
+  databaseURL: "https://shabbosmode-83043-default-rtdb.firebaseio.com",
+  projectId: "shabbosmode-83043",
+  storageBucket: "shabbosmode-83043.firebasestorage.app",
+  messagingSenderId: "1071512338854",
+  appId: "1:1071512338854:web:265ec0bc0b037ad4a70f67"
 };
 
 firebase.initializeApp(firebaseConfig);
