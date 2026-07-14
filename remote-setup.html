@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shabbos Mode Remote Setup</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
+        h1 { color: #bb86fc; text-align: center; }
+        #container { max-width: 800px; margin: 0 auto; background-color: #1e1e1e; padding: 20px; border-radius: 8px; }
+        .league-section { margin-bottom: 20px; }
+        .league-header { font-size: 1.2em; font-weight: bold; color: #03dac6; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
+        .team-item { display: flex; align-items: center; padding: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+        .team-item:hover { background-color: #333; }
+        .team-item input { margin-right: 10px; width: 18px; height: 18px; }
+        #save-button { display: block; width: 100%; padding: 15px; background-color: #bb86fc; color: #121212; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #save-button:hover { background-color: #a765fb; }
+        #status { text-align: center; margin-top: 15px; font-style: italic; color: #03dac6; height: 20px; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Remote Ticker Setup</h1>
+        <div id="teams-list"></div>
+        <button id="save-button">Save Preferences</button>
+        <p id="status"></p>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <!-- App Logic -->
+    <script src="remote-setup.js"></script>
+</body>
+</html>
