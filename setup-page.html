@@ -97,7 +97,6 @@
       <div class="payloadActions hidden" id="payloadActions">
         <div class="qrHolder" id="deepLinkQR"></div>
         <a id="deepLinkButton" class="actionLink" href="#">Open setup on iPad browser</a>
-        <a id="appFallbackButton" class="secondaryLink" href="#">Open app directly</a>
       </div>
     </div>
 
@@ -112,7 +111,6 @@
       const payloadBox = document.getElementById('payloadBox');
       const payloadActions = document.getElementById('payloadActions');
       const deepLinkButton = document.getElementById('deepLinkButton');
-      const appFallbackButton = document.getElementById('appFallbackButton');
 
       if (deviceId) {
         devicePill.textContent = `Device: ${deviceId}`;
@@ -150,9 +148,6 @@
         });
         deepLinkButton.href = handoffUrl;
         deepLinkButton.textContent = 'Open setup on iPad browser';
-        const appFallbackUrl = `shabbosmode://setup?payload=${encodeURIComponent(JSON.stringify(parsedPayload))}`;
-        appFallbackButton.href = appFallbackUrl;
-        appFallbackButton.textContent = 'Open app directly';
         document.getElementById('payloadActions').classList.remove('hidden');
       } else {
         statusBox.textContent = 'No setup payload was found in the link.';
