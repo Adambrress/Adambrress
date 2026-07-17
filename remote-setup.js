@@ -311,7 +311,13 @@ document.addEventListener('DOMContentLoaded', () => {
         saveButton.disabled = true;
         return;
     }
-
+    const timingCategories = [
+        { key: 'SPORTS', label: 'Game Cards (All Leagues)' },
+        { key: 'SCOREBOARD', label: 'Scoreboards (All Leagues)' },
+        { key: 'NEWS', label: 'News Headlines' },
+        { key: 'WEATHER', label: 'Weather' },
+        { key: 'NFL_DRAFT', label: 'NFL Draft' },
+    ];
     const dbRef = database.ref(`devices/${deviceId}/preferences`);
 
     const formatLeagueName = (league) => {
@@ -326,8 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const leagues = [...new Set(ALL_AVAILABLE_ITEMS.map(t => formatLeagueName(t.league)))];
 
     dbRef.once('value', (snapshot) => {
-        const selectedIds = snapshot.val() || [];
-        
+      const remoteData = snapshot.val() || {};
+        const selectedIds = remoteData.teams || (Array.isArray(remoteData) ? remoteData : []);
+        const currentTimings = remoteData.timings || {};        
         leagues.forEach(league => {
             const section = document.createElement('div');
             section.className = 'league-section';
@@ -355,14 +362,52 @@ document.addEventListener('DOMContentLoaded', () => {
             
             teamsListDiv.appendChild(section);
         });
+       // Populate timing sliders
+        timingCategories.forEach(({ key, label }) => {
+            const value = currentTimings[key] || 8;
+            const container = document.createElement('div');
+            container.className = 'slider-container';
+
+            const labelEl = document.createElement('label');
+            labelEl.textContent = `${label}: `;
+            
+            const valueSpan = document.createElement('span');
+            valueSpan.style.fontWeight = 'bold';
+            valueSpan.textContent = `${value}s`;
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = 3;
+            slider.max = 15;
+            slider.value = value;
+            slider.dataset.key = key;
+            slider.oninput = () => {
+                valueSpan.textContent = `${slider.value}s`;
+            };
+
+            labelEl.appendChild(valueSpan);
+            container.appendChild(labelEl);
+            container.appendChild(slider);
+            timingSettingsDiv.appendChild(container);
+        });
+    });
+      
     });
 
     saveButton.addEventListener('click', () => {
         const selectedCheckboxes = document.querySelectorAll('#teams-list input[type="checkbox"]:checked');
         const newSelectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
-        
+        const newTimings = {};
+        document.querySelectorAll('#timing-settings input[type="range"]').forEach(slider => {
+            newTimings[slider.dataset.key] = parseInt(slider.value, 10);
+        });        
         statusDiv.textContent = 'Saving...';
-        dbRef.set(newSelectedIds)
+        const payload = {
+            teams: newSelectedIds,
+            timings: newTimings,
+            lastUpdated: firebase.database.ServerValue.TIMESTAMP
+        };
+        dbRef.set(payload)
             .then(() => {
                 statusDiv.textContent = 'Saved successfully! The ticker will update shortly.';
                 setTimeout(() => statusDiv.textContent = '', 3000);
