@@ -151,7 +151,7 @@ const ALL_AVAILABLE_ITEMS = [
   { id: 'mls-NSH', sport: 'soccer', league: 'usa.1', abbr: 'NSH', name: 'Nashville SC' },
   { id: 'mls-NE', sport: 'soccer', league: 'usa.1', abbr: 'NE', name: 'New England Revolution' },
   { id: 'mls-NYC', sport: 'soccer', league: 'usa.1', abbr: 'NYC', name: 'New York City FC' },
-  { id: 'mls-NY', sport: 'soccer', league: 'usa.1', abbr: 'NY', name: 'New York Red Bulls' },
+  { id: 'mls-NY', sport: 'soccer', league: 'usa.1', abbr: 'RBNY', name: 'Red Bull New York' },
   { id: 'mls-ORL', sport: 'soccer', league: 'usa.1', abbr: 'ORL', name: 'Orlando City SC' },
   { id: 'mls-PHI', sport: 'soccer', league: 'usa.1', abbr: 'PHI', name: 'Philadelphia Union' },
   { id: 'mls-POR', sport: 'soccer', league: 'usa.1', abbr: 'POR', name: 'Portland Timbers' },
@@ -305,12 +305,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const teamsListDiv = document.getElementById('teams-list');
     const saveButton = document.getElementById('save-button');
     const statusDiv = document.getElementById('status');
+    const timingSettingsDiv = document.getElementById('timing-settings');
 
     if (!deviceId) {
         teamsListDiv.innerHTML = '<p style="color: red; text-align: center;">Error: No device ID found in URL. Please re-scan the QR code from your app.</p>';
         saveButton.disabled = true;
         return;
     }
+
     const timingCategories = [
         { key: 'SPORTS', label: 'Game Cards (All Leagues)' },
         { key: 'SCOREBOARD', label: 'Scoreboards (All Leagues)' },
@@ -318,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { key: 'WEATHER', label: 'Weather' },
         { key: 'NFL_DRAFT', label: 'NFL Draft' },
     ];
+
     const dbRef = database.ref(`devices/${deviceId}/preferences`);
 
     const formatLeagueName = (league) => {
@@ -332,9 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const leagues = [...new Set(ALL_AVAILABLE_ITEMS.map(t => formatLeagueName(t.league)))];
 
     dbRef.once('value', (snapshot) => {
-      const remoteData = snapshot.val() || {};
+        const remoteData = snapshot.val() || {};
         const selectedIds = remoteData.teams || (Array.isArray(remoteData) ? remoteData : []);
-        const currentTimings = remoteData.timings || {};        
+        const currentTimings = remoteData.timings || {};
+        
         leagues.forEach(league => {
             const section = document.createElement('div');
             section.className = 'league-section';
@@ -362,7 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             teamsListDiv.appendChild(section);
         });
-       // Populate timing sliders
+
+        // Populate timing sliders
         timingCategories.forEach(({ key, label }) => {
             const value = currentTimings[key] || 8;
             const container = document.createElement('div');
@@ -391,8 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timingSettingsDiv.appendChild(container);
         });
     });
-      
-    });
 
     saveButton.addEventListener('click', () => {
         const selectedCheckboxes = document.querySelectorAll('#teams-list input[type="checkbox"]:checked');
@@ -400,7 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTimings = {};
         document.querySelectorAll('#timing-settings input[type="range"]').forEach(slider => {
             newTimings[slider.dataset.key] = parseInt(slider.value, 10);
-        });        
+        });
+        
         statusDiv.textContent = 'Saving...';
         const payload = {
             teams: newSelectedIds,
