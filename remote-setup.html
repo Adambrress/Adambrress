@@ -16,7 +16,7 @@
         #save-button { display: block; width: 100%; padding: 15px; background-color: #bb86fc; color: #121212; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
         #save-button:hover { background-color: #a765fb; }
         #status { text-align: center; margin-top: 15px; font-style: italic; color: #03dac6; height: 20px; }
-                #timing-settings {
+        #timing-settings {
             margin-top: 30px;
             padding: 20px;
             background-color: #2c2c2e;
@@ -38,7 +38,9 @@
 <body>
     <div id="container">
         <h1>Remote Ticker Setup</h1>
-        <div id="teams-list"></div>
+        <div id="teams-list">
+            <!-- Checkboxes will be populated here -->
+        </div>
         <div id="timing-settings">
             <h2>Animation & Timing</h2>
             <!-- Sliders will be populated here by remote-setup.js -->
@@ -52,6 +54,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <!-- App Logic -->
-        <script src="remote-setup.js?v=3"></script>
+    <script src="remote-setup.js?v=4"></script>
 </body>
 </html>
